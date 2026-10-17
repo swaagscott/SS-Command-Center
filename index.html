@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en-ZA">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="SS Command">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="theme-color" content="#14213d">
+  <title>SS Holdings Command Centre</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="app.js" defer></script>
+</head>
+<body>
+
+<noscript>
+  <p class="notice">This app needs JavaScript. Turn it on in Settings, Safari, Advanced.</p>
+</noscript>
+
+<header class="app-header">
+  <h1>SS Holdings Command Centre</h1>
+  <p class="tagline">Phase 1 - personal and business records</p>
+</header>
+
+<main>
+
+  <!-- DASHBOARD -->
+  <section id="view-dashboard" class="view active" aria-labelledby="h-dashboard">
+    <h2 id="h-dashboard">Dashboard</h2>
+
+    <label for="dash-period">Show totals for</label>
+    <select id="dash-period">
+      <option value="all">All time</option>
+      <option value="month">This month</option>
+    </select>
+
+    <div class="card">
+      <h3>Personal</h3>
+      <div class="row"><span>Money in</span><strong id="personal-in">R0.00</strong></div>
+      <div class="row"><span>Money out</span><strong id="personal-out">R0.00</strong></div>
+      <div class="row total"><span>Net</span><strong id="personal-net">R0.00</strong></div>
+    </div>
+
+    <div class="card">
+      <h3>Business</h3>
+      <div class="row"><span>Money in</span><strong id="business-in">R0.00</strong></div>
+      <div class="row"><span>Money out</span><strong id="business-out">R0.00</strong></div>
+      <div class="row total"><span>Net</span><strong id="business-net">R0.00</strong></div>
+    </div>
+
+    <div class="card">
+      <h3>Combined</h3>
+      <div class="row total"><span>Net (all records)</span><strong id="total-net">R0.00</strong></div>
+    </div>
+
+    <div class="card">
+      <h3>Tasks and goals</h3>
+      <div class="row"><span>Open</span><strong id="open-tasks">0</strong></div>
+      <div class="row"><span>Done</span><strong id="done-tasks">0</strong></div>
+    </div>
+
+    <p class="note">Net means money in minus money out. This is a simple cash view, not accounting profit. Revenue and profit are handled properly in Phase 2.</p>
+    <p id="backup-reminder" class="warn"></p>
+    <p class="note">Your records are stored only in this browser on this phone. Use the Backup tab regularly.</p>
+  </section>
+
+  <!-- ADD / EDIT RECORD -->
+  <section id="view-add" class="view" aria-labelledby="form-title">
+    <h2 id="form-title">Add a record</h2>
+
+    <form id="tx-form" novalidate>
+      <input type="hidden" id="tx-id">
+
+      <label for="tx-account">Account</label>
+      <select id="tx-account">
+        <option value="personal">Personal</option>
+        <option value="business">Business</option>
+      </select>
+
+      <label for="tx-type">Type</label>
+      <select id="tx-type">
+        <option value="income">Money in (income)</option>
+        <option value="expense">Money out (expense)</option>
+      </select>
+
+      <label for="tx-amount">Amount in Rand</label>
+      <input id="tx-amount" type="text" inputmode="decimal" autocomplete="off" placeholder="e.g. 1250.50">
+
+      <label for="tx-date">Date</label>
+      <input id="tx-date" type="date">
+
+      <label for="tx-category">Category</label>
+      <input id="tx-category" type="text" list="category-list" maxlength="40" autocomplete="off" placeholder="e.g. Groceries, Sales">
+      <datalist id="category-list">
+        <option value="Salary"></option>
+        <option value="Sales"></option>
+        <option value="Groceries"></option>
+        <option value="Transport"></option>
+        <option value="Rent"></option>
+        <option value="Airtime and data"></option>
+        <option value="Supplies"></option>
+        <option value="Other"></option>
+      </datalist>
+
+      <label for="tx-note">Note (optional)</label>
+      <input id="tx-note" type="text" maxlength="100" autocomplete="off">
+
+      <p id="tx-error" class="error" role="alert"></p>
+
+      <button type="submit" id="tx-save" class="btn primary">Save record</button>
+      <button type="button" id="tx-cancel" class="btn" hidden>Cancel edit</button>
+    </form>
+  </section>
+
+  <!-- HISTORY -->
+  <section id="view-history" class="view" aria-labelledby="h-history">
+    <h2 id="h-history">History</h2>
+
+    <label for="filter-account">Account</label>
+    <select id="filter-account">
+      <option value="all">All</option>
+      <option value="personal">Personal</option>
+      <option value="business">Business</option>
+    </select>
+
+    <label for="filter-type">Type</label>
+    <select id="filter-type">
+      <option value="all">All</option>
+      <option value="income">Money in</option>
+      <option value="expense">Money out</option>
+    </select>
+
+    <p id="history-summary" class="note"></p>
+    <ul id="tx-list" class="list"></ul>
+    <p id="tx-empty" class="empty">No records yet. Use the Add tab to create your first one.</p>
+  </section>
+
+  <!-- TASKS AND GOALS -->
+  <section id="view-goals" class="view" aria-labelledby="h-goals">
+    <h2 id="h-goals">Tasks and goals</h2>
+
+    <form id="goal-form" novalidate>
+      <label for="goal-title">What needs doing?</label>
+      <input id="goal-title" type="text" maxlength="80" autocomplete="off">
+
+      <label for="goal-kind">Kind</label>
+      <select id="goal-kind">
+        <option value="task">Task</option>
+        <option value="goal">Goal</option>
+      </select>
+
+      <label for="goal-due">Due date (optional)</label>
+      <input id="goal-due" type="date">
+
+      <p id="goal-error" class="error" role="alert"></p>
+      <button type="submit" class="btn primary">Add</button>
+    </form>
+
+    <ul id="goal-list" class="list"></ul>
+    <p id="goal-empty" class="empty">Nothing here yet.</p>
+  </section>
+
+  <!-- BACKUP AND RESTORE -->
+  <section id="view-backup" class="view" aria-labelledby="h-backup">
+    <h2 id="h-backup">Backup and restore</h2>
+    <p id="last-backup" class="note">No backup downloaded yet.</p>
+    <p class="warn">Your records live only in this browser on this phone. If you clear Safari data, erase the phone, or Safari removes unused site data, they can be lost. A backup file is your only protection, and it only counts once you have tested restoring it.</p>
+
+    <h3>1. Back up</h3>
+    <button type="button" id="btn-export-json" class="btn primary">Download full backup (JSON)</button>
+    <button type="button" id="btn-export-csv" class="btn">Download transactions (CSV)</button>
+    <p class="note">Safari may ask you to confirm the download. Afterwards, open the Files app and look in Downloads. Then copy the file somewhere outside this phone, for example email it to yourself or save it to iCloud Drive. The JSON file is the one used for restoring. The CSV file is for opening in a spreadsheet and does not include tasks and goals.</p>
+
+    <h3>2. Restore</h3>
+    <label for="import-file">Choose a backup file (JSON)</label>
+    <input id="import-file" type="file" accept=".json,application/json">
+    <p class="note">Restoring replaces everything currently in the app. You will be asked to confirm first.</p>
+
+    <h3>If downloads do not work</h3>
+    <button type="button" id="btn-show-text" class="btn">Show backup as text</button>
+    <button type="button" id="btn-copy-text" class="btn">Copy text</button>
+    <textarea id="backup-text" rows="6" spellcheck="false" autocapitalize="off" autocorrect="off" placeholder="Backup text appears here. To restore, paste a backup here and tap Restore from text."></textarea>
+    <button type="button" id="btn-restore-text" class="btn">Restore from text</button>
+
+    <p id="backup-status" class="status" role="status"></p>
+
+    <h3>Erase everything</h3>
+    <button type="button" id="btn-reset" class="btn danger">Erase all data on this device</button>
+  </section>
+
+</main>
+
+<nav class="tabbar" aria-label="Main">
+  <button type="button" class="tab active" data-view="dashboard">Home</button>
+  <button type="button" class="tab" data-view="add">Add</button>
+  <button type="button" class="tab" data-view="history">History</button>
+  <button type="button" class="tab" data-view="goals">Goals</button>
+  <button type="button" class="tab" data-view="backup">Backup</button>
+</nav>
+
+</body>
+</html>
