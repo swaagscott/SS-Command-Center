@@ -19,7 +19,7 @@
 
 <header class="app-header">
   <h1>SS Holdings Command Centre</h1>
-  <p class="tagline">Phase 1 - personal and business records</p>
+  <p class="tagline">Phase 2 - personal and business records</p>
 </header>
 
 <main>
@@ -42,15 +42,16 @@
     </div>
 
     <div class="card">
-      <h3>Business</h3>
-      <div class="row"><span>Money in</span><strong id="business-in">R0.00</strong></div>
-      <div class="row"><span>Money out</span><strong id="business-out">R0.00</strong></div>
-      <div class="row total"><span>Net</span><strong id="business-net">R0.00</strong></div>
+      <h3>Business (all businesses)</h3>
+      <div class="row"><span>Revenue</span><strong id="business-in">R0.00</strong></div>
+      <div class="row"><span>Expenses</span><strong id="business-out">R0.00</strong></div>
+      <div class="row total"><span>Net profit/loss</span><strong id="business-net">R0.00</strong></div>
+      <div class="row sub"><span>Owner funding, net (not profit)</span><strong id="business-owner">R0.00</strong></div>
     </div>
 
     <div class="card">
       <h3>Combined</h3>
-      <div class="row total"><span>Net (all records)</span><strong id="total-net">R0.00</strong></div>
+      <div class="row total"><span>Personal + business net</span><strong id="total-net">R0.00</strong></div>
     </div>
 
     <div class="card">
@@ -59,7 +60,7 @@
       <div class="row"><span>Done</span><strong id="done-tasks">0</strong></div>
     </div>
 
-    <p class="note">Net means money in minus money out. This is a simple cash view, not accounting profit. Revenue and profit are handled properly in Phase 2.</p>
+    <p class="note">Business profit here is on a cash basis: money received from sales minus money paid out for expenses. It does not include unpaid invoices, VAT, tax or depreciation, so it is not accounting profit. Personal records are never included in business profit.</p>
     <p id="backup-reminder" class="warn"></p>
     <p class="note">Your records are stored only in this browser on this phone. Use the Backup tab regularly.</p>
   </section>
@@ -77,7 +78,15 @@
         <option value="business">Business</option>
       </select>
 
+      <!-- NEW (Stage A): shown by app.js only when Account is Business -->
+      <div id="tx-business-wrap" hidden>
+        <label for="tx-business">Which business?</label>
+        <select id="tx-business"></select>
+        <p class="note">Owner funding is money you put into or take out of a business. It is not revenue or an expense and does not change profit.</p>
+      </div>
+
       <label for="tx-type">Type</label>
+      <!-- app.js adds the owner funding choices for business records -->
       <select id="tx-type">
         <option value="income">Money in (income)</option>
         <option value="expense">Money out (expense)</option>
@@ -123,11 +132,19 @@
       <option value="business">Business</option>
     </select>
 
+    <!-- NEW (Stage A): shown by app.js -->
+    <div id="filter-business-wrap" hidden>
+      <label for="filter-business">Business</label>
+      <select id="filter-business"></select>
+    </div>
+
     <label for="filter-type">Type</label>
     <select id="filter-type">
       <option value="all">All</option>
       <option value="income">Money in</option>
       <option value="expense">Money out</option>
+      <option value="owner_in">Owner put money in</option>
+      <option value="owner_out">Owner took money out</option>
     </select>
 
     <p id="history-summary" class="note"></p>
@@ -158,6 +175,41 @@
 
     <ul id="goal-list" class="list"></ul>
     <p id="goal-empty" class="empty">Nothing here yet.</p>
+  </section>
+
+  <!-- NEW (Stage A): BUSINESSES -->
+  <section id="view-businesses" class="view" aria-labelledby="h-biz">
+    <h2 id="h-biz">Businesses</h2>
+
+    <div class="card">
+      <h3>SS Holdings group (all businesses)</h3>
+      <div class="row"><span>Revenue</span><strong id="grp-revenue">R0.00</strong></div>
+      <div class="row"><span>Expenses</span><strong id="grp-expenses">R0.00</strong></div>
+      <div class="row total"><span>Net profit/loss</span><strong id="grp-net">R0.00</strong></div>
+      <div class="row sub"><span>Owner funding, net (not profit)</span><strong id="grp-owner">R0.00</strong></div>
+    </div>
+    <p class="note">Cash basis, all time. Personal records are never included here.</p>
+
+    <ul id="biz-list" class="list"></ul>
+    <p id="biz-empty" class="empty">No businesses yet. Add your first one below.</p>
+
+    <form id="biz-form" novalidate>
+      <h3 id="biz-form-title">Add a business</h3>
+      <input type="hidden" id="biz-id">
+
+      <label for="biz-name">Business name</label>
+      <input id="biz-name" type="text" maxlength="60" autocomplete="off">
+
+      <label for="biz-desc">Description (optional)</label>
+      <input id="biz-desc" type="text" maxlength="120" autocomplete="off">
+
+      <p id="biz-error" class="error" role="alert"></p>
+
+      <button type="submit" id="biz-save" class="btn primary">Add business</button>
+      <button type="button" id="biz-cancel" class="btn" hidden>Cancel</button>
+      <button type="button" id="biz-archive" class="btn" hidden>Archive this business</button>
+      <button type="button" id="biz-delete" class="btn danger" hidden>Delete this business</button>
+    </form>
   </section>
 
   <!-- BACKUP AND RESTORE -->
@@ -195,6 +247,8 @@
   <button type="button" class="tab" data-view="add">Add</button>
   <button type="button" class="tab" data-view="history">History</button>
   <button type="button" class="tab" data-view="goals">Goals</button>
+  <!-- Switched off until app.js is updated in Stage A3 -->
+  <button type="button" class="tab" data-view="businesses" disabled>Business</button>
   <button type="button" class="tab" data-view="backup">Backup</button>
 </nav>
 
